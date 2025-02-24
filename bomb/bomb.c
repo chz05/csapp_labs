@@ -113,3 +113,93 @@ int main(int argc, char *argv[])
     
     return 0;
 }
+
+
+/*
+phase_1 is super easy, so we skip it.
+
+Then it is the pesudo_code for phase_2
+
+from main
+
+rax = rdi -> first argument
+rsp - 40
+rsp = rsi   now location is rsi -> second argument
+
+
+after run read_six_numbers
+if 1 = rsp then good else bomb
+goto 52
+rbx = rsp + 4 => probably the next element in rsp
+rbp = rsp + 24 => probably the sixth element
+go back to 27
+eax = (rbx - 4) = (rsp) = 1
+eax = 2 now
+if 2 = (rbx) which is rsp + 4 then good            so we need to make sure rsp = 1, rsp + 4 = 2
+goto 41
+rbx + 4 which is rsp + 8
+compare rbp and rbx => if rbx = rsp + 24 the program will end rsp, rsp + 4, 8, 12, 16, 20
+but now go back to 27
+eax = (rbx - 4) = 2
+eax = 4
+compare (rsp + 8) with 4
+
+rbx = rsp + 4
+rbp = rsp + 24
+goto 27
+rbx -4 = eax
+eax = eax * 2
+eax = rbx then good
+goto 41
+rbx + 4
+rbp != rbx
+goto 27 do the loop
+
+call read_six_numbers:
+rsp - 24 it will read the arguments from stack?
+rsi = rdx
+rcx = rsi + 4
+rax = rsi + 20
+rax = rsp + 8
+rax = rsi + 16
+rax = rsp
+rsi = 
+
+
+0x0 = eax
+
+if we compare 0x5 and eax, if 0x5 > eax then good
+rsp + 24 -> means it pop all rsp
+then return
+
+
+*/
+
+/*
+phase_3
+readline value send to rax I think
+rsp - 24, create space
+rcx = rsp + 12 value forth arg
+rdx = rsp + 8  value third arg
+esi = 0x4025cf probably address, I think it is a format
+eax = 0
+call sscanf, get data
+
+compare 1 and eax check the sscanf read one number
+compare 7 and rsp + 8, value
+
+7 < rsp + 8: 
+eax = rsp + 8 value
+jump to 0x402470 + 8 * %rax   first arg, this line is very important, we need to see where rax goto
+eax = 12 * 16 + 15
+jump to 123
+compare eax  (rsp + 12)
+if equal, success
+
+else:
+
+
+we need to input two arguments
+first argument should < 7
+
+*/
