@@ -236,7 +236,9 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return ~(x ^ 0) + 1;
+  // because we use >> right shift, the positive will produce 0, the negative will produce -1
+  // the zero will produce just 0, so we add one we get -> zero is 1, and otherwise will be 0.
+  return ((x >> 31) | ((~x+1) >> 31)) + 1; 
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -268,7 +270,19 @@ int howManyBits(int x) {
  */
 unsigned floatScale2(unsigned uf) {
   int e = (uf >> 23) & 0xFF;
-
+  int m = uf & 0x7FFFFF;
+  int x = e - 127;
+  //common case is that 
+  if (e == 0x0){
+    m = (m << 1);
+    return (uf >> 31) << 31 | e << 23 | m; 
+  } else if (e == 0xFF){
+    return uf;
+  } else {
+    x = x + 1;
+    e = x + 127;
+    return (uf >> 31) << 31 | e << 23 | m;
+  }
   //if e is not 0 or 255 (0xFF),
 
   return 2;
@@ -286,12 +300,14 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  int e = uf >> 23;
-  //NaN, Infinity
-  if !(e ^ 0xFF){
-      return 0x80000000u;
-  } 
-
+  // positive
+  int signed_value = uf >> 31;
+  if (signed_value == 0x0){
+    int e = (uf >> 23) & 0xFF;
+    int x = e - 127;
+    int m = uf & 0x7FFFFF;
+    return m << x;
+  }
 
   return 2;
 }
@@ -309,5 +325,33 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  //It is impossible to be negative number
+  // unsigned value;
+  // if (x < 0){
+  //   if (x < -126) {
+  //     return 0;
+  //   }
+  //   int exponent = x + 127;
+  //   value = exponent << 23;
+  // }else if (x == 0){
+  //   int exponent = 127;
+  //   value = exponent << 23;
+  // }else {
+  //   if (x > 127){
+  //     return 0x7F800000;
+  //   }
+  //   int exponent = x + 127;
+  //   value = exponent << 23;
+  // }
+  //   return value;
+  if (x < -126){
+    return 0;
+  }
+  if (x > 127){
+    return 0x7F800000;
+  }
+  
+  int exponent = x + 127;
+  return exponent << 23;
+
 }
